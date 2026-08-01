@@ -1,6 +1,21 @@
 import { File, Paths } from "expo-file-system";
+import * as Sentry from "@sentry/react-native";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+
+Sentry.init({
+  dsn: sentryDsn,
+  enabled: !!sentryDsn,
+  debug: __DEV__,
+  // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+  // We recommend adjusting this value in production.
+  tracesSampleRate: 0.2,
+});
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+SplashScreen.preventAutoHideAsync();
 import {
   Alert,
   FlatList,
@@ -145,7 +160,7 @@ function formatDate(): string {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
-export default function App() {
+function App() {
   const [items, setItems] = useState<ChecklistItem[]>([]);
   const [input, setInput] = useState("");
   const [ready, setReady] = useState(false);
@@ -164,6 +179,12 @@ export default function App() {
       setReady(true);
     });
   }, []);
+
+  // Hide splash screen once app is ready
+  useEffect(() => {
+    if (!ready) return;
+    SplashScreen.hideAsync();
+  }, [ready]);
 
   // Persist theme whenever it changes
   useEffect(() => {
@@ -292,7 +313,7 @@ export default function App() {
           <View style={styles.header}>
             <View style={styles.headerRow}>
               <View style={styles.headerText}>
-                <Text style={styles.appTitle}>Daily Checklist</Text>
+                <Text style={styles.appTitle}>Listed</Text>
                 <Text style={styles.dateText}>{formatDate()}</Text>
               </View>
               <Pressable
@@ -792,3 +813,5 @@ function makeStyles(c: Colors) {
     },
   });
 }
+
+export default Sentry.wrap(App);
