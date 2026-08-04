@@ -8,7 +8,6 @@ const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 Sentry.init({
   dsn: sentryDsn,
   enabled: !!sentryDsn,
-  debug: __DEV__,
   // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
   // We recommend adjusting this value in production.
   tracesSampleRate: 0.2,
@@ -19,6 +18,7 @@ SplashScreen.preventAutoHideAsync();
 import {
   Alert,
   FlatList,
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -167,6 +167,10 @@ function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>("light");
   const [settingsVisible, setSettingsVisible] = useState(false);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const headerLogo =
+    themeMode === "dark"
+      ? require("./assets/Listed-Minimalist-WHITE.png")
+      : require("./assets/Listed-Minimalist-BLACK.png");
 
   const colors = themeMode === "dark" ? DARK : LIGHT;
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -313,7 +317,11 @@ function App() {
           <View style={styles.header}>
             <View style={styles.headerRow}>
               <View style={styles.headerText}>
-                <Text style={styles.appTitle}>Listed</Text>
+                <Image
+                  source={headerLogo}
+                  style={styles.appLogo}
+                  resizeMode="contain"
+                />
                 <Text style={styles.dateText}>{formatDate()}</Text>
               </View>
               <Pressable
@@ -430,27 +438,29 @@ function App() {
           )}
 
           {/* Input row */}
-          <View style={styles.inputRow}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="New task…"
-              placeholderTextColor={colors.placeholder}
-              value={input}
-              onChangeText={setInput}
-              onSubmitEditing={addItem}
-              returnKeyType="done"
-              blurOnSubmit={false}
-              maxLength={200}
-            />
-            <Pressable
-              style={[styles.addBtn, !input.trim() && styles.addBtnDisabled]}
-              onPress={addItem}
-              disabled={!input.trim()}
-              accessibilityLabel="Add task"
-            >
-              <Text style={styles.addBtnText}>Add</Text>
-            </Pressable>
-          </View>
+          <SafeAreaView edges={["bottom"]} style={styles.inputSafeArea}>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.textInput}
+                placeholder="New task…"
+                placeholderTextColor={colors.placeholder}
+                value={input}
+                onChangeText={setInput}
+                onSubmitEditing={addItem}
+                returnKeyType="done"
+                blurOnSubmit={false}
+                maxLength={200}
+              />
+              <Pressable
+                style={[styles.addBtn, !input.trim() && styles.addBtnDisabled]}
+                onPress={addItem}
+                disabled={!input.trim()}
+                accessibilityLabel="Add task"
+              >
+                <Text style={styles.addBtnText}>Add</Text>
+              </Pressable>
+            </View>
+          </SafeAreaView>
         </KeyboardAvoidingView>
 
         {/* Settings Modal */}
@@ -540,11 +550,9 @@ function makeStyles(c: Colors) {
     headerText: {
       flex: 1,
     },
-    appTitle: {
-      fontSize: 28,
-      fontWeight: "700",
-      color: c.textPrimary,
-      letterSpacing: -0.5,
+    appLogo: {
+      width: 130,
+      height: 30,
     },
     dateText: {
       fontSize: 14,
@@ -710,6 +718,9 @@ function makeStyles(c: Colors) {
     },
 
     // Input
+    inputSafeArea: {
+      backgroundColor: c.surface,
+    },
     inputRow: {
       flexDirection: "row",
       alignItems: "center",

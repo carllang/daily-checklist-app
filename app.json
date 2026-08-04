@@ -11,14 +11,14 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#F8FAFC",
-          "image": "./assets/splash-icon.png",
+          "image": "./assets/Listed-Minimalist-BLACK.png",
           "imageWidth": 200,
           "dark": {
-            "backgroundColor": "#0F172A"
+            "backgroundColor": "#0F172A",
+            "image": "./assets/Listed-Minimalist-WHITE.png"
           }
         }
       ],
-      "@sentry/react-native",
       [
         "@sentry/react-native/expo",
         {
